@@ -22,6 +22,11 @@ to your preferred media player:
 
 Live installation
 -----------------
-          
+
 * gopher://gopher.raumzeitlabor.org/
 * [via HTTP-Proxy (no dedicated gopher client needed)](http://gopher.floodgap.com/gopher/gw?a=gopher%3A%2F%2Fgopher.raumzeitlabor.org)
+
+As bandwidth is limited on gopher.raumzeitlabor.org, the links to the
+recording are leaving gopherspace and point via HTTP to the media.ccc.de
+CDN. For the real gopher feel, consider running your own instance with
+recordings provided as item type '9'.

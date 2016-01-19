@@ -30,6 +30,7 @@ var (
 	ip        = flag.String("ip", "", "The ip address cmg will be listening on (the listening socket will be bound to this ip; empty string for all)")
 	host      = flag.String("host", "localhost", "The hostname or ip address cmg will be listening on (for use in menu items)")
 	templates = flag.String("templates", "templates", "The directory containing the templates")
+	recHttp   = flag.Bool("http", false, "link recordings via http, not gopher (saves bandwidth)")
 )
 
 const (
@@ -401,8 +402,14 @@ func getEventData(id string) (*eventData, error) {
 	}
 
 	for _, r := range e.Recordings {
-		selector := fmt.Sprintf("%s%s", recordingPrefix, strings.TrimPrefix(r.RecordingUrl, cdn))
-		m := newMenuItem(typeBinary, r.Filename, selector)
+		var m menuItem
+		if *recHttp {
+			s := fmt.Sprintf("%s%s", urlPrefix, r.RecordingUrl)
+			m = newMenuItem(typeHTML, r.Filename, s)
+		} else {
+			s := fmt.Sprintf("%s%s", recordingPrefix, strings.TrimPrefix(r.RecordingUrl, cdn))
+			m = newMenuItem(typeBinary, r.Filename, s)
+		}
 
 		switch {
 		case strings.HasPrefix(r.MimeType, "v"):
