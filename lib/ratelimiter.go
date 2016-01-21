@@ -38,12 +38,12 @@ func NewRateLimiter(d time.Duration, b int) *RateLimiter {
 		l.throttle <- true
 	}
 
-	go func(l *RateLimiter) {
+	go func() {
 		for l.running {
 			<-l.ticker.C
 			l.throttle <- true
 		}
-	}(l)
+	}()
 
 	return l
 }
