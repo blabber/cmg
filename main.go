@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/blabber/cmg/internal/backend"
+	"github.com/blabber/cmg/lib"
 )
 
 var (
@@ -58,21 +59,6 @@ var (
 
 var tmpl *template.Template
 
-func rateLimit() <-chan bool {
-	// 100ms per request, bursts of 100
-	throttle := make(chan bool, 100)
-	ticker := time.Tick(time.Second / 10)
-
-	go func() {
-		for {
-			<-ticker
-			throttle <- true
-		}
-	}()
-
-	return throttle
-}
-
 func main() {
 	flag.Parse()
 
@@ -82,14 +68,15 @@ func main() {
 		log.Panic(err)
 	}
 
-	throttle := rateLimit()
+	l := lib.NewRateLimiter(time.Second/10, 100)
+	defer l.Stop()
 
 	ln, err := net.Listen("tcp", net.JoinHostPort(*ip, *port))
 	if err != nil {
 		log.Panic(err)
 	}
 	for {
-		<-throttle
+		<-l.Throttle
 		conn, err := ln.Accept()
 		if err != nil {
 			log.Print(err)
