@@ -75,10 +75,6 @@ func rateLimit() <-chan bool {
 
 func main() {
 	flag.Parse()
-	mainItem = newMenuItem(typeDir, "Back to main menu", "/")
-	raumZeitLaborItem = newMenuItem(typeHTML, "RaumZeitLabor", "URL:https://raumzeitlabor.de")
-	githubItem = newMenuItem(typeHTML, "https://github.com/blabber/cmg",
-		"URL:https://github.com/blabber/cmg")
 
 	tmpl = template.New("root").Funcs(template.FuncMap{"wrapDescription": wrapDescription})
 	_, err := tmpl.ParseGlob(path.Join(*templates, "*.tmpl"))
@@ -150,12 +146,15 @@ func handleConnection(conn net.Conn) {
 	}
 }
 
+type baseData struct {
+	Host string
+	Port string
+}
+
 type categoryData struct {
-	Slug              string
-	MainItem          menuItem
-	GitHubItem        menuItem
-	RaumZeitLaborItem menuItem
-	Items             []menuItem
+	baseData
+	Slug  string
+	Items []menuItem
 }
 
 type menuItem struct {
@@ -167,6 +166,7 @@ type menuItem struct {
 }
 
 type conferenceData struct {
+	baseData
 	Slug     string
 	Title    string
 	MainItem menuItem
@@ -280,10 +280,11 @@ func getCategoryData(category string) (*categoryData, error) {
 	sort.Sort(menuItemByTitle(items))
 
 	data := &categoryData{
+		baseData{
+			*host,
+			*port,
+		},
 		category,
-		mainItem,
-		githubItem,
-		raumZeitLaborItem,
 		items,
 	}
 
@@ -337,6 +338,10 @@ func getConferenceData(id string) (*conferenceData, error) {
 	}
 
 	data := &conferenceData{
+		baseData: baseData{
+			*host,
+			*port,
+		},
 		Slug:     c.Slug,
 		Title:    c.Title,
 		MainItem: mainItem,
@@ -373,6 +378,7 @@ func getConferenceMenu(id string) (io.Reader, error) {
 }
 
 type eventData struct {
+	baseData
 	Title           string
 	Subtitle        string
 	Description     string
@@ -392,6 +398,10 @@ func getEventData(id string) (*eventData, error) {
 	}
 
 	data := &eventData{
+		baseData: baseData{
+			*host,
+			*port,
+		},
 		Title:       e.Title,
 		Subtitle:    e.Subtitle,
 		Description: e.Description,
