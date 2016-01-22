@@ -500,9 +500,14 @@ func getRecording(path string) (io.Reader, error) {
 
 func getError(err error) (io.Reader, error) {
 	data := struct {
+		baseData
 		ErrorItem menuItem
 		MainItem  menuItem
 	}{
+		baseData{
+			*host,
+			*port,
+		},
 		newMenuItem(typeInfo, err.Error(), "fake"),
 		mainItem,
 	}
