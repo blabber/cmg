@@ -13,9 +13,7 @@ import "time"
 // NewRateLimiter call.
 type RateLimiter struct {
 	Throttle <-chan bool
-	throttle chan bool
-	ticker   *time.Ticker
-	running  bool
+	end      chan<- bool
 }
 
 // NewRateLimiter creates a new RateLimiter whose Throttle channel is blocking
@@ -23,34 +21,36 @@ type RateLimiter struct {
 // zero, the Throttle channel is buffered with a buffer size of b, allowing
 // bursts of maximal b bools released without blocking. The buffer is initially
 // filled, allowing instant bursts.
-func NewRateLimiter(d time.Duration, b int) *RateLimiter {
-	t := make(chan bool, b)
-
-	l := &RateLimiter{
-		t,
-		t,
-		time.NewTicker(d),
-		true,
-	}
+func NewRateLimiter(d time.Duration, b int) RateLimiter {
+	throttle := make(chan bool, b)
+	end := make(chan bool)
+	ticker := time.NewTicker(d)
 
 	// fill throttle initially, allowing instant burst
 	for i := 0; i < b; i++ {
-		l.throttle <- true
+		throttle <- true
 	}
 
 	go func() {
-		for l.running {
-			<-l.ticker.C
-			l.throttle <- true
+		for {
+			select {
+			case <-ticker.C:
+				throttle <- true
+			case <-end:
+				ticker.Stop()
+				return
+			}
 		}
 	}()
 
-	return l
+	return RateLimiter{
+		throttle,
+		end,
+	}
 }
 
 // Stop stops the RateLimiter and allows the garbage collector to recover its
 // resources.
-func (l *RateLimiter) Stop() {
-	l.ticker.Stop()
-	l.running = false
+func (l RateLimiter) Stop() {
+	l.end <- true
 }

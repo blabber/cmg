@@ -37,7 +37,6 @@ func TestRateLimiter(t *testing.T) {
 					return
 				case <-l.Throttle:
 					c = c + 1
-				default:
 				}
 			}
 		}()
