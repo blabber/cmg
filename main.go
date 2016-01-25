@@ -22,8 +22,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/blabber/cmg/internal/backend"
 	"github.com/blabber/cmg/lib"
+	"github.com/blabber/cmg/lib/backend"
 )
 
 var (
@@ -220,7 +220,7 @@ func getCategoryData(category string) (*categoryData, error) {
 
 						id := c.Url[strings.LastIndex(c.Url, "/")+1:]
 
-						bc, err := backend.GetConferenceById(id)
+						bc, err := backend.GetConference(id)
 						if err != nil {
 							log.Print(err)
 						}
@@ -319,7 +319,7 @@ func getUrlMenu(url string) (io.Reader, error) {
 }
 
 func getConferenceData(id string) (*conferenceData, error) {
-	c, err := backend.GetConferenceById(id)
+	c, err := backend.GetConference(id)
 	if err != nil {
 		return nil, err
 	}

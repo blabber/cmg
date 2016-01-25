@@ -4,8 +4,5 @@
 // think this stuff is worth it, you can buy me a beer in return.
 //                                                             Tobias Rehbein
 
+// Package backend implements the communication with the media.ccc.de backend.
 package backend
-
-const (
-	backend = "https://api.media.ccc.de/"
-)

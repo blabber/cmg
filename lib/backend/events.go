@@ -6,12 +6,10 @@
 
 package backend
 
-import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-)
+import "fmt"
 
+// An Event represents an event (talk, workshop, ...) as returned by the
+// backend.
 type Event struct {
 	Title       string           `json:"title"`
 	Subtitle    string           `json:"subtitle"`
@@ -24,24 +22,23 @@ type Event struct {
 	Recordings  []EventRecording `json:"recordings"`
 }
 
+// An EventRecording represents a recording of an Event.
 type EventRecording struct {
-	MimeType     string `json:"mime_type"`
-	Filename     string `json:"filename"`
+	MimeType string `json:"mime_type"`
+	Filename string `json:"filename"`
+
+	// RecordingUrl is the URL of the recording in the media.ccc.de CDN.
 	RecordingUrl string `json:"recording_url"`
 }
 
-func GetEvent(id string) (*Event, error) {
-	resp, err := http.Get(fmt.Sprintf("%s/%s/%s", backend, "public/events", id))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+// GetEvent returns an Event representing the event (talk, workshop, ...)
+// identified by id.
+func GetEvent(id string) (Event, error) {
+	var data Event
 
-	data := new(Event)
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(data)
+	err := getData(fmt.Sprintf("%s/%s", "public/events", id), &data)
 	if err != nil {
-		return nil, err
+		return data, err
 	}
 
 	return data, nil
