@@ -21,6 +21,10 @@ func getData(path string, data interface{}) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("backend responded: %s", resp.Status)
+	}
+
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(data)
 	if err != nil {
