@@ -15,7 +15,7 @@ import (
 // getData issues a HTTP GET to path on the backend and decodes the answer
 // returned by the backend into data.
 func getData(path string, data interface{}) error {
-	resp, err := http.Get(fmt.Sprintf("%s/%s", backend, path))
+	resp, err := http.Get(fmt.Sprintf("%s%s", backend, path))
 	if err != nil {
 		return err
 	}
